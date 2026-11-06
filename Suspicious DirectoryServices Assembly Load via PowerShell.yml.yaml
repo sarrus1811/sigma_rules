@@ -1,0 +1,29 @@
+title: Suspicious DirectoryServices Assembly Load via PowerShell
+id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+status: experimental
+description: Detects PowerShell loading Active Directory or Local SAM management .NET assemblies (System.DirectoryServices). Attackers use this to programmatically enumerate local or domain users and groups while evading standard process creation monitoring (e.g., bypassing net.exe or Get-LocalUser).
+author: YourName
+date: 2026/11/07
+references:
+    - https://hacktricks.wiki/windows-hardening/windows-local-privilege-escalation/
+tags:
+    - attack.discovery
+    - attack.t1087.001   # Account Discovery: Local Account
+    - attack.t1087.002   # Account Discovery: Domain Account
+logsource:
+    product: windows
+    category: image_load
+detection:
+    selection:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\pwsh.exe'
+            - '\powershell_ise.exe'
+        ImageLoaded|endswith:
+            - '\System.DirectoryServices.AccountManagement.dll'
+            - '\System.DirectoryServices.dll'
+    condition: selection
+falsepositives:
+    - Administrative scripts executed by IT personnel for AD or local user management.
+    - Identity management software utilizing PowerShell under the hood.
+level: high

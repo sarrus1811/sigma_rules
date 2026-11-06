@@ -1,0 +1,30 @@
+title: Suspicious Native .NET Class System Enumeration via PowerShell
+id: 11223344-5566-7788-99aa-bbccddeeff00
+status: experimental
+description: Detects the usage of specific .NET classes within PowerShell script blocks that are commonly used by attackers to enumerate system, network, and account information while evading standard command-line logging (Event ID 4688).
+author: YourName
+date: 2026/11/07
+references:
+    - https://hacktricks.wiki/windows-hardening/windows-local-privilege-escalation/
+tags:
+    - attack.discovery
+    - attack.t1082       # System Information Discovery
+    - attack.t1049       # System Network Connections Discovery
+    - attack.t1007       # System Service Discovery
+    - attack.t1087.001   # Account Discovery: Local Account
+logsource:
+    product: windows
+    category: ps_script
+detection:
+    selection:
+        ScriptBlockText|contains:
+            - '[System.DirectoryServices.AccountManagement.'
+            - '[System.Net.NetworkInformation.IPGlobalProperties]'
+            - '[System.ServiceProcess.ServiceController]'
+            - '[System.Environment]::OSVersion'
+            - '[System.Security.Principal.WindowsIdentity]::GetCurrent()'
+    condition: selection
+falsepositives:
+    - Legitimate system administration and inventory scripts.
+    - Custom diagnostic modules deployed by IT operations.
+level: medium
